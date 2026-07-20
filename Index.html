@@ -10,18 +10,26 @@
 
   <style>
     :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --accent: #10b981;
+      --bg-wood: #1c130d;
+      --card-bg: #2d1f16;
+      --card-border: #4a3425;
+      --accent-gold: #d4af37;
       --trap-red: #ef4444;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --text: #f5e6d3;
+      --text-muted: #b39b82;
+      /* Wooden board colors */
+      --light-square: #e3c193;
+      --dark-square: #8b5a2b;
     }
 
     body {
-      background-color: var(--bg);
+      background-color: var(--bg-wood);
+      /* Dark wood grain texture overlay */
+      background-image: radial-gradient(circle, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.85) 100%), 
+                        linear-gradient(90deg, rgba(255,255,255,0.02) 50%, transparent 50%);
+      background-size: 100% 100%, 4px 100%;
       color: var(--text);
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: 'Georgia', serif;
       margin: 0;
       padding: 2rem 1rem;
       display: flex;
@@ -31,8 +39,8 @@
     .container { max-width: 950px; width: 100%; }
 
     header { text-align: center; margin-bottom: 2rem; }
-    h1 { margin: 0 0 0.5rem 0; color: var(--accent); }
-    header p { margin: 0; color: var(--text-muted); }
+    h1 { margin: 0 0 0.5rem 0; color: var(--accent-gold); font-weight: normal; letter-spacing: 1px; }
+    header p { margin: 0; color: var(--text-muted); font-style: italic; }
 
     /* Selection Controls */
     .controls-bar {
@@ -42,8 +50,9 @@
       margin-bottom: 1.5rem;
       background: var(--card-bg);
       padding: 1rem;
-      border-radius: 10px;
-      border: 1px solid #334155;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.4);
     }
 
     .select-group {
@@ -54,17 +63,18 @@
       gap: 0.4rem;
     }
 
-    label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+    label { font-size: 0.85rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
 
     select {
-      background: #0f172a;
+      background: #18100a;
       color: var(--text);
-      border: 1px solid #334155;
+      border: 1px solid var(--card-border);
       padding: 0.6rem;
-      border-radius: 6px;
+      border-radius: 4px;
       font-size: 0.95rem;
       outline: none;
       cursor: pointer;
+      font-family: inherit;
     }
 
     /* Main Layout */
@@ -81,11 +91,26 @@
       max-width: 440px;
     }
 
+    /* Wooden Chessboard Border & Styling */
     #board {
       width: 100%;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      border-radius: 4px;
+      padding: 12px;
+      background: #3d281a;
+      border: 4px solid #1a100a;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.7), inset 0 0 10px rgba(0,0,0,0.8);
+      box-sizing: border-box;
+    }
+
+    /* Customizing Chessboard.js square colors to Wood Tones */
+    .white-1e1d7 {
+      background-color: var(--light-square) !important;
+      color: #8b5a2b !important;
+    }
+
+    .black-3c85d {
+      background-color: var(--dark-square) !important;
+      color: #e3c193 !important;
     }
 
     .step-buttons {
@@ -97,23 +122,26 @@
     .step-btn {
       flex: 1;
       background: var(--card-bg);
-      color: var(--text);
-      border: 1px solid #334155;
+      color: var(--accent-gold);
+      border: 1px solid var(--card-border);
       padding: 0.6rem;
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
       font-weight: bold;
+      font-family: inherit;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }
 
-    .step-btn:hover { background: #2b394a; }
+    .step-btn:hover { background: #3c2a1e; }
 
     .info-panel {
       flex: 1;
       min-width: 300px;
       background: var(--card-bg);
-      border: 1px solid #334155;
-      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
       padding: 1.5rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
     }
 
     .tag {
@@ -124,12 +152,13 @@
       border-radius: 4px;
       margin-bottom: 0.5rem;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .tag-mainline { background: #065f46; color: #34d399; }
-    .tag-trap { background: #7f1d1d; color: #fca5a5; }
+    .tag-mainline { background: #1b4332; color: #74c69d; border: 1px solid #2d6a4f; }
+    .tag-trap { background: #5c1414; color: #fca5a5; border: 1px solid #7f1d1d; }
 
-    .opening-title { font-size: 1.5rem; margin: 0 0 1rem 0; }
+    .opening-title { font-size: 1.5rem; margin: 0 0 1rem 0; color: var(--accent-gold); font-weight: normal; }
 
     .moves-pills {
       display: flex;
@@ -139,22 +168,24 @@
     }
 
     .move-pill {
-      background: #0f172a;
-      border: 1px solid #334155;
+      background: #18100a;
+      border: 1px solid var(--card-border);
       padding: 0.25rem 0.6rem;
       border-radius: 4px;
       font-weight: bold;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      color: var(--text);
     }
 
     .description-box {
-      background: #0f172a;
-      border-left: 4px solid var(--accent);
+      background: #18100a;
+      border-left: 4px solid var(--accent-gold);
       padding: 1rem;
-      border-radius: 0 8px 8px 0;
-      line-height: 1.5;
+      border-radius: 0 6px 6px 0;
+      line-height: 1.6;
       font-size: 0.95rem;
-      color: #cbd5e1;
+      color: var(--text-muted);
+      font-family: system-ui, -apple-system, sans-serif;
     }
 
     .description-box.is-trap {
@@ -167,7 +198,7 @@
   <div class="container">
     <header>
       <h1>♟️ Opening Explorer & Traps</h1>
-      <p>Select an opening, explore variations (Accepted/Declined), or learn early traps!</p>
+      <p>Select an opening, explore variations, or learn early traps!</p>
     </header>
 
     <!-- Dropdown Selector Bar -->
@@ -195,7 +226,7 @@
 
       <div class="info-panel">
         <span id="badge" class="tag tag-mainline">Mainline</span>
-        <h2 id="title" class="opening-title">Queen's Gambit</h2>
+        <h2 id="title" class="opening-title">Opening Name</h2>
         
         <label style="font-size: 0.85rem; color: var(--text-muted);">Move Sequence:</label>
         <div id="moves" class="moves-pills"></div>
@@ -213,28 +244,79 @@
   <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
 
   <script>
-    // Nested Opening Tree Data
     const openingTree = {
-      "queens-gambit": {
-        name: "Queen's Gambit (1.d4 d5 2.c4)",
+      "kings-gambit": {
+        name: "King's Gambit (1.e4 e5 2.f4)",
         variations: [
           {
-            name: "Queen's Gambit Accepted (QGA)",
+            name: "King's Gambit Accepted (KGA)",
             type: "variation",
-            moves: ["d4", "d5", "c4", "dxc4", "e4", "e5", "Nf3"],
-            desc: "Black captures on c4 to gain dynamic counterplay, giving White control of the center in exchange for easy development."
+            moves: ["e4", "e5", "f4", "exf4", "Nf3", "g5", "Bc4", "Bg7"],
+            desc: "Black accepts the gambit pawn. White gets fast central dominance and an open f-file for attack, while Black holds the extra pawn with ...g5."
           },
           {
-            name: "Queen's Gambit Declined (QGD)",
+            name: "King's Gambit Declined (KGD)",
             type: "variation",
-            moves: ["d4", "d5", "c4", "e6", "Nc3", "Nf6", "Bg5"],
-            desc: "Black holds firm in the center with 2...e6, maintaining a strong stake in the middle of the board."
+            moves: ["e4", "e5", "f4", "Bc5", "Nf3", "d6", "Nc3", "Nf6"],
+            desc: "Black refuses the pawn with 2...Bc5, preventing White from castling easily and aiming for solid classical development."
           },
           {
-            name: "TRAP: Elephant Trap in QGD",
+            name: "Falkbeer Counter-Gambit",
+            type: "variation",
+            moves: ["e4", "e5", "f4", "d5", "exd5", "e4", "d3", "Nf6"],
+            desc: "Black strikes back immediately in the center with 2...d5!, sacrificing a pawn right back to disrupt White's king position."
+          },
+          {
+            name: "TRAP: Keres Gambit / Early ...Qh4+ Trap",
             type: "trap",
-            moves: ["d4", "d5", "c4", "e6", "Nc3", "Nf6", "Bg5", "Nbd7", "cxd5", "exd5", "Nxd5", "Nxd5", "Bxd8", "Bb4+"],
-            desc: "🚨 <b>TRAP ALERT:</b> White gets greedy winning a queen with 7.Bxd8, but Black strikes back with 7...Bb4+! White is forced to block with Qd2, and Black ends up a full piece ahead."
+            moves: ["e4", "e5", "f4", "exf4", "g3", "fxg3", "h3", "g2", "Bxg2", "Qh4+"],
+            desc: "🚨 <b>TRAP ALERT:</b> White plays careless early pawn moves, allowing Black's queen to deliver a devastating check on h4, permanently ruining White's king safety."
+          }
+        ]
+      },
+      "sicilian": {
+        name: "Sicilian Defense (1.e4 c5)",
+        variations: [
+          {
+            name: "Najdorf Variation",
+            type: "variation",
+            moves: ["e4", "c5", "Nf3", "d6", "d4", "cxd4", "Nxd4", "Nf6", "Nc3", "a6"],
+            desc: "The gold standard of counter-attacking options for Black, popularized by Bobby Fischer and Garry Kasparov."
+          },
+          {
+            name: "Dragon Variation",
+            type: "variation",
+            moves: ["e4", "c5", "Nf3", "d6", "d4", "cxd4", "Nxd4", "Nf6", "Nc3", "g6"],
+            desc: "Black fianchettoes the dark-squared bishop to create severe pressure along the long diagonal towards White's queenside."
+          },
+          {
+            name: "TRAP: Siberian Trap (Smith-Morra)",
+            type: "trap",
+            moves: ["e4", "c5", "d4", "cxd4", "c3", "dxc3", "Nxc3", "Nc6", "Nf3", "e6", "Bc4", "Qc7", "O-O", "Nf6", "Qe2", "Ng4", "h3", "Nd4"],
+            desc: "🚨 <b>TRAP ALERT:</b> In the Smith-Morra Gambit, Black plays 18...Nd4! attacking White's queen and threatening mate on h2 via Nxf3+."
+          }
+        ]
+      },
+      "ruy-lopez": {
+        name: "Ruy Lopez (1.e4 e5 2.Nf3 Nc6 3.Bb5)",
+        variations: [
+          {
+            name: "Closed Defense",
+            type: "variation",
+            moves: ["e4", "e5", "Nf3", "Nc6", "Bb5", "a6", "Ba4", "Nf6", "O-O", "Be7"],
+            desc: "The classical backbone of king's pawn openings. Solid, strategic, and deep positional play for both colors."
+          },
+          {
+            name: "Berlin Defense",
+            type: "variation",
+            moves: ["e4", "e5", "Nf3", "Nc6", "Bb5", "Nf6"],
+            desc: "Known as the 'Berlin Wall', this hyper-solid setup neutralizes White's attacking initiative early on."
+          },
+          {
+            name: "TRAP: Noah's Ark Trap",
+            type: "trap",
+            moves: ["e4", "e5", "Nf3", "Nc6", "Bb5", "a6", "Ba4", "d6", "d4", "b5", "Bb3", "Nxd4", "Nxd4", "exd4", "Qxd4", "c5", "Qd5", "Be6", "Qc6+", "Bd7", "Qd5", "c4"],
+            desc: "🚨 <b>TRAP ALERT:</b> Black traps White's light-squared bishop on b3 with 11...c4 after a series of pawn pushes!"
           }
         ]
       },
@@ -242,22 +324,45 @@
         name: "Italian Game (1.e4 e5 2.Nf3 Nc6 3.Bc4)",
         variations: [
           {
-            name: "Giuoco Piano (Main Line)",
+            name: "Giuoco Piano",
             type: "variation",
             moves: ["e4", "e5", "Nf3", "Nc6", "Bc4", "Bc5", "c3", "Nf6", "d4"],
-            desc: "The classical approach where White aims to build a strong two-pawn center with c3 and d4."
+            desc: "Classical line where White aims to build an overpowering pawn duo in the center with c3 and d4."
           },
           {
-            name: "Two Knights Defense",
+            name: "Evans Gambit",
             type: "variation",
-            moves: ["e4", "e5", "Nf3", "Nc6", "Bc4", "Nf6", "Ng5", "d5", "exd5", "Na5"],
-            desc: "Black counters aggressively with 3...Nf6. White usually attacks f7 with Ng5, leading to sharp tactical play."
+            moves: ["e4", "e5", "Nf3", "Nc6", "Bc4", "Bc5", "b4", "Bxb4", "c3"],
+            desc: "An aggressive 19th-century gambit where White sacrifices a flank pawn for immediate development and central control."
           },
           {
             name: "TRAP: Blackburne Shilling Gambit",
             type: "trap",
             moves: ["e4", "e5", "Nf3", "Nc6", "Bc4", "Nd4", "Nxe5", "Qg5", "Nxf7", "Qxg2", "Rf1", "Qxe4+", "Be2", "Nf3#"],
-            desc: "🚨 <b>TRAP ALERT:</b> White falls for the greedy 5.Nxf7? fork. Black unleashes 5...Qxg2! culminating in a beautiful smothered mate with ...Nf3#!"
+            desc: "🚨 <b>TRAP ALERT:</b> White falls for greedy play on f7, but Black unleashes a forced sequence leading to a smothered checkmate with 14...Nf3#!"
+          }
+        ]
+      },
+      "french-defense": {
+        name: "French Defense (1.e4 e6)",
+        variations: [
+          {
+            name: "Advance Variation",
+            type: "variation",
+            moves: ["e4", "e6", "d4", "d5", "e5", "c5", "c3", "Nc6", "Nf3"],
+            desc: "White closes the center immediately with 3.e5, locking in Black's light-squared bishop but giving Black a clear target in White's d4 pawn."
+          },
+          {
+            name: "Winawer Variation",
+            type: "variation",
+            moves: ["e4", "e6", "d4", "d5", "Nc3", "Bb4"],
+            desc: "A sharp pin on White's c3 knight, often doubling White's pawns in exchange for White gaining space and attack."
+          },
+          {
+            name: "TRAP: Milner-Barry Gambit Trap",
+            type: "trap",
+            moves: ["e4", "e6", "d4", "d5", "e5", "c5", "c3", "Nc6", "Nf3", "Qb6", "Bd3", "cxd4", "cxd4", "Bd7", "O-O", "Nxd4", "Nxd4", "Qxd4", "Nc3", "a6", "Qe2", "Ne7", "Kh1", "Nc6", "f4", "Nb4", "Rd1", "Bc5", "Bxf5"],
+            desc: "🚨 <b>TRAP ALERT:</b> White sacrifices the d4 pawn to open lines against Black's uncastled king and active queen."
           }
         ]
       },
@@ -265,22 +370,159 @@
         name: "Caro-Kann Defense (1.e4 c6)",
         variations: [
           {
-            name: "Advance Variation",
+            name: "Classical Variation",
             type: "variation",
-            moves: ["e4", "c6", "d4", "d5", "e5", "Bf5"],
-            desc: "White pushes e5 to gain space. Black develops the bishop out to f5 before locking the pawn chain with ...e6."
+            moves: ["e4", "c6", "d4", "d5", "Nc3", "dxe4", "Nxe4", "Bf5", "Ng3", "Bg6"],
+            desc: "Black cleanly develops the light-squared bishop outside the pawn chain before playing ...e6."
           },
           {
-            name: "Exchange Variation",
+            name: "Fantasy Variation",
             type: "variation",
-            moves: ["e4", "c6", "d4", "d5", "exd5", "cxd5", "Bd3"],
-            desc: "White simplifies the center on move 3, leading to calm, maneuvering positional play."
+            moves: ["e4", "c6", "d4", "d5", "f3"],
+            desc: "An aggressive line where White holds a strong pawn center with f3, accepting extra structural weaknesses for attacking chances."
           },
           {
             name: "TRAP: Smothered Mate Trap",
             type: "trap",
             moves: ["e4", "c6", "d4", "d5", "Nc3", "dxe4", "Nxe4", "Nd7", "Qe2", "Ngf6", "Nd6#"],
-            desc: "🚨 <b>TRAP ALERT:</b> Black plays a natural development move 5...Ngf6, but White delivers a sudden smothered mate on d6 because the c6-pawn is pinned!"
+            desc: "🚨 <b>TRAP ALERT:</b> Black carelessly plays 5...Ngf6, allowing 6.Nd6# because the c6 pawn is pinned to Black's king by White's queen!"
+          }
+        ]
+      },
+      "scandinavian": {
+        name: "Scandinavian Defense (1.e4 d5)",
+        variations: [
+          {
+            name: "Mainline (2...Qxd5)",
+            type: "variation",
+            moves: ["e4", "d5", "exd5", "Qxd5", "Nc3", "Qa5", "d4", "Nf6"],
+            desc: "Black strikes at e4 on move 1. Although White gains tempo on Black's queen, Black gets rapid development."
+          },
+          {
+            name: "Modern (2...Nf6)",
+            type: "variation",
+            moves: ["e4", "d5", "exd5", "Nf6", "d4", "Nxd5", "c4", "Nb6"],
+            desc: "Black refrains from taking with the queen early, developing the knight first to recapture on d5 later."
+          },
+          {
+            name: "TRAP: Portuguese Gambit Trap",
+            type: "trap",
+            moves: ["e4", "d5", "exd5", "Nf6", "d4", "Bg4", "f3", "Bf5", "Bb5+", "Nbd7", "c4", "e6", "dxe6", "Bxe6", "d5", "Bf5", "Nc3", "Bc5"],
+            desc: "🚨 <b>TRAP ALERT:</b> Black sacrifices pawns to prevent White from castling and dominate the light squares."
+          }
+        ]
+      },
+      "queens-gambit": {
+        name: "Queen's Gambit (1.d4 d5 2.c4)",
+        variations: [
+          {
+            name: "Accepted (QGA)",
+            type: "variation",
+            moves: ["d4", "d5", "c4", "dxc4", "e4", "e5", "Nf3"],
+            desc: "Black takes on c4, ceding central control temporarily to fight on the flanks."
+          },
+          {
+            name: "Declined (QGD)",
+            type: "variation",
+            moves: ["d4", "d5", "c4", "e6", "Nc3", "Nf6", "Bg5"],
+            desc: "A bedrock defense. Black reinforces d5 with e6 to maintain a firm central stake."
+          },
+          {
+            name: "Slav Defense",
+            type: "variation",
+            moves: ["d4", "d5", "c4", "c6", "Nf3", "Nf6", "Nc3", "dxc4"],
+            desc: "Black supports d5 with c6, reserving the e8-h5 diagonal for the light-squared bishop."
+          },
+          {
+            name: "TRAP: Elephant Trap",
+            type: "trap",
+            moves: ["d4", "d5", "c4", "e6", "Nc3", "Nf6", "Bg5", "Nbd7", "cxd5", "exd5", "Nxd5", "Nxd5", "Bxd8", "Bb4+"],
+            desc: "🚨 <b>TRAP ALERT:</b> White wins a queen with 7.Bxd8?, but Black delivers a shocking check on b4 that regains the queen and leaves Black a piece ahead!"
+          }
+        ]
+      },
+      "kings-indian": {
+        name: "King's Indian Defense (1.d4 Nf6 2.c4 g6)",
+        variations: [
+          {
+            name: "Classical Variation",
+            type: "variation",
+            moves: ["d4", "Nf6", "c4", "g6", "Nc3", "Bg7", "e4", "d6", "Nf3", "O-O", "Be2", "e5"],
+            desc: "A sharp hypermodern battle where White attacks on the queenside while Black launches a mating storm on White's king."
+          },
+          {
+            name: "Sämisch Variation",
+            type: "variation",
+            moves: ["d4", "Nf6", "c4", "g6", "Nc3", "Bg7", "e4", "d6", "f3", "O-O", "Be3"],
+            desc: "White plays 5.f3 to solidify the center and prepare a direct pawn storm with g4/h4 on Black's kingside."
+          }
+        ]
+      },
+      "nimzo-indian": {
+        name: "Nimzo-Indian Defense (1.d4 Nf6 2.c4 e6 3.Nc3 Bb4)",
+        variations: [
+          {
+            name: "Rubinstein Variation",
+            type: "variation",
+            moves: ["d4", "Nf6", "c4", "e6", "Nc3", "Bb4", "e3", "O-O", "Bd3", "d5"],
+            desc: "White plays e3 to develop smoothly, accepting doubled c-pawns in exchange for the bishop pair."
+          },
+          {
+            name: "Classical (Capablanca) Variation",
+            type: "variation",
+            moves: ["d4", "Nf6", "c4", "e6", "Nc3", "Bb4", "Qc2", "O-O", "a3", "Bxc3+"],
+            desc: "White plays 4.Qc2 to avoid doubled pawns on the c-file if Black exchanges on c3."
+          }
+        ]
+      },
+      "dutch-defense": {
+        name: "Dutch Defense (1.d4 f5)",
+        variations: [
+          {
+            name: "Leningrad Variation",
+            type: "variation",
+            moves: ["d4", "f5", "g3", "Nf6", "Bg2", "g6", "Nf3", "Bg7", "O-O", "O-O"],
+            desc: "Combines the Dutch f5 pawn push with a king's Indian style fianchetto on g7."
+          },
+          {
+            name: "TRAP: Hopton Attack Trap",
+            type: "trap",
+            moves: ["d4", "f5", "Bg5", "h6", "Bh4", "g5", "Bg3", "f4", "e3", "h5", "Bd3", "Rh6", "Qxh5+", "Rxh5", "Bg6#"],
+            desc: "🚨 <b>TRAP ALERT:</b> Black tries to trap White's bishop with ...f4 and ...g5, but exposes the dark squares leading to a checkmate on g6!"
+          }
+        ]
+      },
+      "english-opening": {
+        name: "English Opening (1.c4)",
+        variations: [
+          {
+            name: "Symmetrical Variation",
+            type: "variation",
+            moves: ["c4", "c5", "Nc3", "Nc6", "g3", "g6", "Bg2", "Bg7"],
+            desc: "A highly strategic battle where both players mirror structures and fight for control of the d5/d4 central outposts."
+          },
+          {
+            name: "Reversed Sicilian",
+            type: "variation",
+            moves: ["c4", "e5", "Nc3", "Nf6", "g3", "d5", "cxd5", "Nxd5"],
+            desc: "Black plays 1...e5, giving White a Sicilian Defense setup with an extra tempo."
+          }
+        ]
+      },
+      "london-system": {
+        name: "London System (1.d4 & 2.Bf4)",
+        variations: [
+          {
+            name: "Main Line",
+            type: "variation",
+            moves: ["d4", "d5", "Nf3", "Nf6", "Bf4", "e6", "e3", "Bd6", "Bg3"],
+            desc: "A solid 'scheme-based' opening for White that creates an impenetrable pyramid structure with d4, e3, and c3."
+          },
+          {
+            name: "TRAP: Early ...Qb6 Trap",
+            type: "trap",
+            moves: ["d4", "Nf6", "Bf4", "c5", "e3", "Qb6", "Nc3", "Qxb2", "Nb5", "Nd5", "Rb1", "Qxa2", "Ra1", "Qb2", "Bc4"],
+            desc: "🚨 <b>TRAP ALERT:</b> Black grabs the b2 pawn early with the Queen, but White traps the Queen on the queenside using active piece coordination."
           }
         ]
       }
@@ -375,4 +617,3 @@
   </script>
 </body>
 </html>
-
