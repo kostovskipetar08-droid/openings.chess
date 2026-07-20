@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chess Openings, Variations & Traps</title>
+
+  <!-- Chessboard.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" />
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #10b981;
+      --trap-red: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container { max-width: 950px; width: 100%; }
+
+    header { text-align: center; margin-bottom: 2rem; }
+    h1 { margin: 0 0 0.5rem 0; color: var(--accent); }
+    header p { margin: 0; color: var(--text-muted); }
+
+    /* Selection Controls */
+    .controls-bar {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid #334155;
+    }
+
+    .select-group {
+      flex: 1;
+      min-width: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+
+    select {
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid #334155;
+      padding: 0.6rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Main Layout */
+    .app-layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+
+    .board-box {
+      flex: 1;
+      min-width: 300px;
+      max-width: 440px;
+    }
+
+    #board {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .step-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .step-btn {
+      flex: 1;
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid #334155;
+      padding: 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .step-btn:hover { background: #2b394a; }
+
+    .info-panel {
+      flex: 1;
+      min-width: 300px;
+      background: var(--card-bg);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .tag-mainline { background: #065f46; color: #34d399; }
+    .tag-trap { background: #7f1d1d; color: #fca5a5; }
+
+    .opening-title { font-size: 1.5rem; margin: 0 0 1rem 0; }
+
+    .moves-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .move-pill {
+      background: #0f172a;
+      border: 1px solid #334155;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .description-box {
+      background: #0f172a;
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      border-radius: 0 8px 8px 0;
+      line-height: 1.5;
+      font-size: 0.95rem;
+      color: #cbd5e1;
+    }
+
+    .description-box.is-trap {
+      border-left-color: var(--trap-red);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>♟️ Opening Explorer & Traps</h1>
+      <p>Select an opening, explore variations (Accepted/Declined), or learn early traps!</p>
+    </header>
+
+    <!-- Dropdown Selector Bar -->
+    <div class="controls-bar">
+      <div class="select-group">
+        <label for="opening-select">1. Select Opening</label>
+        <select id="opening-select" onchange="onOpeningChange()"></select>
+      </div>
+
+      <div class="select-group">
+        <label for="variation-select">2. Select Variation / Trap</label>
+        <select id="variation-select" onchange="onVariationChange()"></select>
+      </div>
+    </div>
+
+    <!-- Main Board & Info -->
+    <div class="app-layout">
+      <div class="board-box">
+        <div id="board"></div>
+        <div class="step-buttons">
+          <button class="step-btn" onclick="stepMove(-1)">◀ Prev Move</button>
+          <button class="step-btn" onclick="stepMove(1)">Next Move ▶</button>
+        </div>
+      </div>
+
+      <div class="info-panel">
+        <span id="badge" class="tag tag-mainline">Mainline</span>
+        <h2 id="title" class="opening-title">Queen's Gambit</h2>
+        
+        <label style="font-size: 0.85rem; color: var(--text-muted);">Move Sequence:</label>
+        <div id="moves" class="moves-pills"></div>
+
+        <div id="desc-box" class="description-box">
+          <p id="description">Select a line to get started.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+
+  <script>
+    // Nested Opening Tree Data
+    const openingTree = {
+      "queens-gambit": {
+        name: "Queen's Gambit (1.d4 d5 2.c4)",
+        variations: [
+          {
+            name: "Queen's Gambit Accepted (QGA)",
+            type: "variation",
+            moves: ["d4", "d5", "c4", "dxc4", "e4", "e5", "Nf3"],
+            desc: "Black captures on c4 to gain dynamic counterplay, giving White control of the center in exchange for easy development."
+          },
+          {
+            name: "Queen's Gambit Declined (QGD)",
+            type: "variation",
+            moves: ["d4", "d5", "c4", "e6", "Nc3", "Nf6", "Bg5"],
+            desc: "Black holds firm in the center with 2...e6, maintaining a strong stake in the middle of the board."
+          },
+          {
+            name: "TRAP: Elephant Trap in QGD",
+            type: "trap",
+            moves: ["d4", "d5", "c4", "e6", "Nc3", "Nf6", "Bg5", "Nbd7", "cxd5", "exd5", "Nxd5", "Nxd5", "Bxd8", "Bb4+"],
+            desc: "🚨 <b>TRAP ALERT:</b> White gets greedy winning a queen with 7.Bxd8, but Black strikes back with 7...Bb4+! White is forced to block with Qd2, and Black ends up a full piece ahead."
+          }
+        ]
+      },
+      "italian-game": {
+        name: "Italian Game (1.e4 e5 2.Nf3 Nc6 3.Bc4)",
+        variations: [
+          {
+            name: "Giuoco Piano (Main Line)",
+            type: "variation",
+            moves: ["e4", "e5", "Nf3", "Nc6", "Bc4", "Bc5", "c3", "Nf6", "d4"],
+            desc: "The classical approach where White aims to build a strong two-pawn center with c3 and d4."
+          },
+          {
+            name: "Two Knights Defense",
+            type: "variation",
+            moves: ["e4", "e5", "Nf3", "Nc6", "Bc4", "Nf6", "Ng5", "d5", "exd5", "Na5"],
+            desc: "Black counters aggressively with 3...Nf6. White usually attacks f7 with Ng5, leading to sharp tactical play."
+          },
+          {
+            name: "TRAP: Blackburne Shilling Gambit",
+            type: "trap",
+            moves: ["e4", "e5", "Nf3", "Nc6", "Bc4", "Nd4", "Nxe5", "Qg5", "Nxf7", "Qxg2", "Rf1", "Qxe4+", "Be2", "Nf3#"],
+            desc: "🚨 <b>TRAP ALERT:</b> White falls for the greedy 5.Nxf7? fork. Black unleashes 5...Qxg2! culminating in a beautiful smothered mate with ...Nf3#!"
+          }
+        ]
+      },
+      "caro-kann": {
+        name: "Caro-Kann Defense (1.e4 c6)",
+        variations: [
+          {
+            name: "Advance Variation",
+            type: "variation",
+            moves: ["e4", "c6", "d4", "d5", "e5", "Bf5"],
+            desc: "White pushes e5 to gain space. Black develops the bishop out to f5 before locking the pawn chain with ...e6."
+          },
+          {
+            name: "Exchange Variation",
+            type: "variation",
+            moves: ["e4", "c6", "d4", "d5", "exd5", "cxd5", "Bd3"],
+            desc: "White simplifies the center on move 3, leading to calm, maneuvering positional play."
+          },
+          {
+            name: "TRAP: Smothered Mate Trap",
+            type: "trap",
+            moves: ["e4", "c6", "d4", "d5", "Nc3", "dxe4", "Nxe4", "Nd7", "Qe2", "Ngf6", "Nd6#"],
+            desc: "🚨 <b>TRAP ALERT:</b> Black plays a natural development move 5...Ngf6, but White delivers a sudden smothered mate on d6 because the c6-pawn is pinned!"
+          }
+        ]
+      }
+    };
+
+    let game = new Chess();
+    let board = Chessboard('board', 'start');
+    let currentMoves = [];
+    let currentStepIndex = 0;
+
+    // Populate Opening Select Box
+    const openSelect = document.getElementById('opening-select');
+    for (let key in openingTree) {
+      let opt = document.createElement('option');
+      opt.value = key;
+      opt.innerText = openingTree[key].name;
+      openSelect.appendChild(opt);
+    }
+
+    function onOpeningChange() {
+      const selectedKey = openSelect.value;
+      const variations = openingTree[selectedKey].variations;
+      const varSelect = document.getElementById('variation-select');
+      varSelect.innerHTML = '';
+
+      variations.forEach((v, idx) => {
+        let opt = document.createElement('option');
+        opt.value = idx;
+        opt.innerText = v.name;
+        varSelect.appendChild(opt);
+      });
+
+      onVariationChange();
+    }
+
+    function onVariationChange() {
+      const openKey = openSelect.value;
+      const varIdx = document.getElementById('variation-select').value;
+      const item = openingTree[openKey].variations[varIdx];
+
+      currentMoves = item.moves;
+      currentStepIndex = item.moves.length; // Start fully played out
+
+      // Update Info Header
+      document.getElementById('title').innerText = item.name;
+      document.getElementById('description').innerHTML = item.desc;
+
+      const badge = document.getElementById('badge');
+      const descBox = document.getElementById('desc-box');
+
+      if (item.type === 'trap') {
+        badge.innerText = 'TRAP';
+        badge.className = 'tag tag-trap';
+        descBox.className = 'description-box is-trap';
+      } else {
+        badge.innerText = 'VARIATION';
+        badge.className = 'tag tag-mainline';
+        descBox.className = 'description-box';
+      }
+
+      // Render Move Pills
+      const movesDiv = document.getElementById('moves');
+      movesDiv.innerHTML = '';
+      item.moves.forEach((m, i) => {
+        const pill = document.createElement('span');
+        pill.className = 'move-pill';
+        const num = Math.floor(i / 2) + 1;
+        pill.innerText = i % 2 === 0 ? `${num}.${m}` : m;
+        movesDiv.appendChild(pill);
+      });
+
+      updateBoardPosition();
+    }
+
+    function stepMove(direction) {
+      currentStepIndex += direction;
+      if (currentStepIndex < 0) currentStepIndex = 0;
+      if (currentStepIndex > currentMoves.length) currentStepIndex = currentMoves.length;
+      updateBoardPosition();
+    }
+
+    function updateBoardPosition() {
+      game.reset();
+      for (let i = 0; i < currentStepIndex; i++) {
+        game.move(currentMoves[i]);
+      }
+      board.position(game.fen());
+    }
+
+    // Initialize
+    onOpeningChange();
+  </script>
+</body>
+</html>
+
