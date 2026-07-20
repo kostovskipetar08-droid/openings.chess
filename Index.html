@@ -2,38 +2,195 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Chess Openings Trainer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess Openings Explorer</title>
   <style>
-    body { background-color: #120d08; color: #f0e6d2; font-family: 'Georgia', serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-    .container { background: #23160c; border: 3px solid #543920; padding: 20px; border-radius: 12px; max-width: 540px; width: 100%; display: flex; flex-direction: column; align-items: center; }
-    .selectors { display: flex; gap: 10px; width: 100%; margin-bottom: 15px; }
-    select { flex: 1; background: #362213; color: #e6c594; padding: 10px; border: 1px solid #754f2c; border-radius: 6px; cursor: pointer; }
-    .board-frame { background: #402917; padding: 12px; border-radius: 8px; border: 2px solid #634125; }
-    .board { display: grid; grid-template-columns: repeat(8, 1fr); width: 360px; height: 360px; border: 2px solid #28180c; }
-    .square { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #120d08;
+      background-image: radial-gradient(#281b10 1px, transparent 1px);
+      background-size: 16px 16px;
+      color: #f0e6d2;
+      font-family: 'Georgia', serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 15px;
+      font-size: 1.8rem;
+      color: #e6c594;
+      text-shadow: 1px 1px 3px #000;
+      letter-spacing: 1px;
+    }
+
+    .container {
+      background: #23160c;
+      border: 3px solid #543920;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      max-width: 540px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .selectors {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    select {
+      flex: 1;
+      background: #362213;
+      color: #e6c594;
+      border: 1px solid #754f2c;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    select:hover {
+      background: #422a18;
+    }
+
+    .board-frame {
+      background: #402917;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: inset 0 0 10px #000;
+      border: 2px solid #634125;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      width: 360px;
+      height: 360px;
+      border: 2px solid #28180c;
+      position: relative;
+    }
+
+    @media (max-width: 420px) {
+      .board {
+        width: 280px;
+        height: 280px;
+      }
+    }
+
+    .square {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
     .light { background-color: #ebd0a7; }
     .dark { background-color: #a26c42; }
-    .piece { width: 85%; pointer-events: none; }
-    .move-scroll-menu { width: 100%; margin-top: 15px; background: #1a1008; border: 1px solid #543920; display: flex; gap: 8px; overflow-x: auto; padding: 8px; border-radius: 6px; }
-    .move-item { background: #362213; color: #e6c594; padding: 8px 14px; border-radius: 4px; cursor: pointer; white-space: nowrap; }
-    .move-item.active { background: #e6c594; color: #23160c; font-weight: bold; }
-    .lesson-box { margin-top: 15px; width: 100%; background: #1a1008; border-left: 4px solid #e6c594; padding: 12px; font-size: 0.95rem; }
+
+    .piece {
+      width: 85%;
+      height: 85%;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Move Scroll Menu */
+    .move-scroll-menu {
+      width: 100%;
+      margin-top: 15px;
+      background: #1a1008;
+      border: 1px solid #543920;
+      border-radius: 6px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 8px;
+      scrollbar-color: #7a502c #1a1008;
+    }
+
+    .move-item {
+      background: #362213;
+      color: #e6c594;
+      border: 1px solid #754f2c;
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .move-item:hover {
+      background: #543920;
+      color: #fff;
+    }
+
+    .move-item.active {
+      background: #e6c594;
+      color: #23160c;
+      font-weight: bold;
+      border-color: #e6c594;
+    }
+
+    /* Teaching Box */
+    .lesson-box {
+      margin-top: 15px;
+      width: 100%;
+      background: #1a1008;
+      border-left: 4px solid #e6c594;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      color: #f0e6d2;
+      min-height: 60px;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Chess Openings Trainer</h1>
+  <h1>Chess Openings Explorer</h1>
+
   <div class="container">
     <div class="selectors">
       <select id="categorySelect" onchange="loadCategory()"></select>
       <select id="openingSelect" onchange="selectOpening()"></select>
     </div>
-    <div class="board-frame"><div id="board" class="board"></div></div>
+
+    <div class="board-frame">
+      <div id="board" class="board"></div>
+    </div>
+
+    <!-- Scrollable Move Menu -->
     <div class="move-scroll-menu" id="moveMenu"></div>
-    <div class="lesson-box" id="lessonBox">Select an opening to start learning!</div>
+
+    <!-- Lesson Box -->
+    <div class="lesson-box" id="lessonBox">
+      Select an opening to start learning!
+    </div>
   </div>
 
   <script>
+    // Hotlink-Safe CDN Image Dictionary
     const pieceImages = {
       'wP': 'https://chessboardjs.com/img/chesspieces/wikipedia/wP.png',
       'wR': 'https://chessboardjs.com/img/chesspieces/wikipedia/wR.png',
@@ -51,79 +208,262 @@
 
     const openingsData = {
       "King's Pawn (1.e4)": {
-        "Ruy Lopez": { moves: [["e2","e4"], ["e7","e5"], ["g1","f3"], ["b8","c6"], ["f1","b5"]], lessons: ["Start: e4.", "1...e5.", "2.Nf3.", "2...Nc6.", "3.Bb5: The Ruy Lopez!"] },
-        "Italian Game": { moves: [["e2","e4"], ["e7","e5"], ["g1","f3"], ["b8","c6"], ["f1","c4"]], lessons: ["Start: e4.", "1...e5.", "2.Nf3.", "2...Nc6.", "3.Bc4 targets f7."] },
-        "Sicilian Defense": { moves: [["e2","e4"], ["c7","c5"], ["g1","f3"], ["d7","d6"], ["d2","d4"], ["c5","d4"], ["f3","d4"]], lessons: ["1.e4 c5 (Sicilian)", "2.Nf3 d6", "3.d4 cxd4", "4.Nxd4: Standard open setup."] }
+        "Sicilian Defense": {
+          moves: [["e2","e4"], ["c7","c5"], ["g1","f3"], ["d7","d6"], ["d2","d4"], ["c5","d4"], ["f3","d4"]],
+          lessons: [
+            "1.e4: White claims the center.",
+            "1...c5: The Sicilian Defense! Black attacks the center asymmetrically.",
+            "2.Nf3: White prepares a central break with d4.",
+            "2...d6: Black controls e5 and prepares development.",
+            "3.d4: White breaks open the center.",
+            "3...cxd4: Black trades a flank pawn for White's central d-pawn.",
+            "4.Nxd4: White recaptures with knight, opening active play."
+          ]
+        },
+        "Ruy Lopez": {
+          moves: [["e2","e4"], ["e7","e5"], ["g1","f3"], ["b8","c6"], ["f1","b5"]],
+          lessons: [
+            "1.e4: White controls the center.",
+            "1...e5: Black mirrors White.",
+            "2.Nf3: White attacks the e5 pawn.",
+            "2...Nc6: Black defends e5.",
+            "3.Bb5: The Ruy Lopez! White pressures Black's knight defender."
+          ]
+        },
+        "Italian Game": {
+          moves: [["e2","e4"], ["e7","e5"], ["g1","f3"], ["b8","c6"], ["f1","c4"]],
+          lessons: [
+            "1.e4: White controls the center.",
+            "1...e5: Black mirrors White.",
+            "2.Nf3: White attacks e5.",
+            "2...Nc6: Black defends e5.",
+            "3.Bc4: The Italian Game! White direct targets the weak f7 square."
+          ]
+        },
+        "French Defense": {
+          moves: [["e2","e4"], ["e7","e6"], ["d2","d4"], ["d7","d5"]],
+          lessons: [
+            "1.e4: White controls center.",
+            "1...e6: Black prepares d5.",
+            "2.d4: White claims full center control.",
+            "2...d5: Black strikes back at e4."
+          ]
+        },
+        "Caro-Kann Defense": {
+          moves: [["e2","e4"], ["c7","c6"], ["d2","d4"], ["d7","d5"]],
+          lessons: [
+            "1.e4: White opens center.",
+            "1...c6: Black sets up d5 without blocking light bishop.",
+            "2.d4: White takes full center.",
+            "2...d5: Black challenges e4 directly."
+          ]
+        }
       },
       "Queen's Pawn (1.d4)": {
-        "Catalan Opening": { moves: [["d2","d4"], ["g8","f6"], ["c2","c4"], ["e7","e6"], ["g2","g3"]], lessons: ["1.d4 Nf6", "2.c4 e6", "3.g3: The Catalan!"] },
-        "Dutch Defense": { moves: [["d2","d4"], ["f7","f5"]], lessons: ["1.d4 f5: The aggressive Dutch!"] },
-        "London System": { moves: [["d2","d4"], ["d7","d5"], ["c1","f4"], ["g8","f6"], ["e2","e3"]], lessons: ["1.d4 d5", "2.Bf4 (London System)", "3.e3 solidifies."] }
+        "Catalan Opening": {
+          moves: [["d2","d4"], ["g8","f6"], ["c2","c4"], ["e7","e6"], ["g2","g3"]],
+          lessons: [
+            "1.d4: White controls d4.",
+            "1...Nf6: Black controls e4.",
+            "2.c4: White claims space.",
+            "2...e6: Black prepares development.",
+            "3.g3: The Catalan! White prepares to long-fianchetto the light bishop on g2."
+          ]
+        },
+        "Dutch Defense": {
+          moves: [["d2","d4"], ["f7","f5"]],
+          lessons: [
+            "1.d4: White opens with Queen's Pawn.",
+            "1...f5: The Dutch Defense! Black aggressively prevents White from playing e4."
+          ]
+        },
+        "Queen's Gambit Accepted": {
+          moves: [["d2","d4"], ["d7","d5"], ["c2","c4"], ["d5","c4"]],
+          lessons: [
+            "1.d4: White takes center.",
+            "1...d5: Black contests center.",
+            "2.c4: Queen's Gambit! White offers c-pawn for central dominance.",
+            "2...dxc4: Black accepts the gambit."
+          ]
+        },
+        "London System": {
+          moves: [["d2","d4"], ["d7","d5"], ["c1","f4"], ["g8","f6"], ["e2","e3"]],
+          lessons: [
+            "1.d4: White opens center.",
+            "1...d5: Black matches center.",
+            "2.Bf4: The London System! Bishop active early.",
+            "2...Nf6: Black develops knight.",
+            "3.e3: White sets up solid pyramid structure."
+          ]
+        }
       },
       "Meme & Unorthodox": {
-        "Coca-Cola Gambit": { moves: [["g2","g4"], ["g7","g5"], ["f2","f4"]], lessons: ["1.g4 g5", "2.f4: Coca-Cola Gambit!"] },
-        "Pepsi Countergambit": { moves: [["g2","g4"], ["g7","g5"], ["f2","f4"], ["f7","f5"]], lessons: ["...2...f5: The Pepsi Counter!"] }
+        "Coca-Cola Gambit": {
+          moves: [["g2","g4"], ["g7","g5"], ["f2","f4"]],
+          lessons: [
+            "1.g4: White opens with Grob's Attack.",
+            "1...g5: Black mirrors on flank.",
+            "2.f4: The Coca-Cola Gambit! White sacrifices f-pawn for pure chaotic flank expansion!"
+          ]
+        },
+        "Pepsi Countergambit": {
+          moves: [["g2","g4"], ["g7","g5"], ["f2","f4"], ["f7","f5"]],
+          lessons: [
+            "1.g4: White opens Grob.",
+            "1...g5: Black mirrors g5.",
+            "2.f4: White offers Coca-Cola Gambit.",
+            "2...f5: The Pepsi Countergambit! Black rejects f4 and offers their own f-pawn right back!"
+          ]
+        },
+        "Bongcloud Attack": {
+          moves: [["e2","e4"], ["e7","e5"], ["e1","e2"]],
+          lessons: [
+            "1.e4: White opens.",
+            "1...e5: Black mirrors.",
+            "2.Ke2: Bongcloud Attack! King steps into action early for maximum psychological dominance."
+          ]
+        }
       }
     };
 
-    const initialBoard = { 'a8':'bR', 'b8':'bN', 'c8':'bB', 'd8':'bQ', 'e8':'bK', 'f8':'bB', 'g8':'bN', 'h8':'bR', 'a7':'bP', 'b7':'bP', 'c7':'bP', 'd7':'bP', 'e7':'bP', 'f7':'bP', 'g7':'bP', 'h7':'bP', 'a2':'wP', 'b2':'wP', 'c2':'wP', 'd2':'wP', 'e2':'wP', 'f2':'wP', 'g2':'wP', 'h2':'wP', 'a1':'wR', 'b1':'wN', 'c1':'wB', 'd1':'wQ', 'e1':'wK', 'f1':'wB', 'g1':'wN', 'h1':'wR' };
-    
+    const initialBoard = {
+      'a8':'bR', 'b8':'bN', 'c8':'bB', 'd8':'bQ', 'e8':'bK', 'f8':'bB', 'g8':'bN', 'h8':'bR',
+      'a7':'bP', 'b7':'bP', 'c7':'bP', 'd7':'bP', 'e7':'bP', 'f7':'bP', 'g7':'bP', 'h7':'bP',
+      'a2':'wP', 'b2':'wP', 'c2':'wP', 'd2':'wP', 'e2':'wP', 'f2':'wP', 'g2':'wP', 'h2':'wP',
+      'a1':'wR', 'b1':'wN', 'c1':'wB', 'd1':'wQ', 'e1':'wK', 'f1':'wB', 'g1':'wN', 'h1':'wR'
+    };
+
+    let activeOpening = null;
+
     function init() {
-      const catSelect = document.getElementById("categorySelect");
-      Object.keys(openingsData).forEach(cat => catSelect.add(new Option(cat, cat)));
       renderBoard();
+      populateCategories();
       loadCategory();
+    }
+
+    function renderBoard() {
+      const boardEl = document.getElementById("board");
+      boardEl.innerHTML = "";
+      const files = ['a','b','c','d','e','f','g','h'];
+      
+      for (let rank = 8; rank >= 1; rank--) {
+        for (let f = 0; f < 8; f++) {
+          const sq = files[f] + rank;
+          const squareEl = document.createElement("div");
+          const isLight = (rank + f) % 2 !== 0;
+          squareEl.className = `square ${isLight ? 'light' : 'dark'}`;
+          squareEl.id = `sq-${sq}`;
+          boardEl.appendChild(squareEl);
+        }
+      }
+    }
+
+    function populateCategories() {
+      const catSelect = document.getElementById("categorySelect");
+      catSelect.innerHTML = "";
+      Object.keys(openingsData).forEach(cat => {
+        let opt = document.createElement("option");
+        opt.value = cat;
+        opt.innerText = cat;
+        catSelect.appendChild(opt);
+      });
     }
 
     function loadCategory() {
       const cat = document.getElementById("categorySelect").value;
-      const opSelect = document.getElementById("openingSelect");
-      opSelect.innerHTML = "";
-      Object.keys(openingsData[cat]).forEach(op => opSelect.add(new Option(op, op)));
+      const openSelect = document.getElementById("openingSelect");
+      openSelect.innerHTML = "";
+      
+      Object.keys(openingsData[cat]).forEach(op => {
+        let opt = document.createElement("option");
+        opt.value = op;
+        opt.innerText = op;
+        openSelect.appendChild(opt);
+      });
+
       selectOpening();
     }
 
     function selectOpening() {
       const cat = document.getElementById("categorySelect").value;
       const op = document.getElementById("openingSelect").value;
-      const data = openingsData[cat][op];
+      activeOpening = openingsData[cat][op];
+
+      buildMoveMenu();
+      jumpToStep(0);
+    }
+
+    function buildMoveMenu() {
       const menu = document.getElementById("moveMenu");
-      menu.innerHTML = `<div class="move-item active" onclick="jump(0, -1)">Start</div>`;
-      data.moves.forEach((mv, i) => menu.innerHTML += `<div class="move-item" onclick="jump(${i+1}, ${i})">${i+1}. ${mv[0]}-${mv[1]}</div>`);
-      jump(0, -1);
+      menu.innerHTML = "";
+
+      // Start option
+      let startItem = document.createElement("div");
+      startItem.className = "move-item active";
+      startItem.innerText = "Start Position";
+      startItem.onclick = () => jumpToStep(0);
+      menu.appendChild(startItem);
+
+      activeOpening.moves.forEach((mv, idx) => {
+        let item = document.createElement("div");
+        item.className = "move-item";
+        item.innerText = `${idx + 1}. ${mv[0]} → ${mv[1]}`;
+        item.onclick = () => jumpToStep(idx + 1);
+        menu.appendChild(item);
+      });
     }
 
-    function jump(step, lessonIdx) {
-      const state = JSON.parse(JSON.stringify(initialBoard));
-      const cat = document.getElementById("categorySelect").value;
-      const op = document.getElementById("openingSelect").value;
-      const data = openingsData[cat][op];
-      for(let i=0; i<step; i++) { const [f, t] = data.moves[i]; state[t] = state[f]; delete state[f]; }
-      updateBoard(state);
-      document.getElementById("lessonBox").innerText = lessonIdx === -1 ? "Ready to learn?" : data.lessons[lessonIdx];
-      document.querySelectorAll('.move-item').forEach((el, i) => el.classList.toggle('active', i === step));
-    }
+    function jumpToStep(stepIndex) {
+      // Rebuild board position state
+      let state = JSON.parse(JSON.stringify(initialBoard));
 
-    function updateBoard(state) {
-      const files = ['a','b','c','d','e','f','g','h'];
-      for(let r=8; r>=1; r--) for(let f=0; f<8; f++) {
-        const sq = files[f]+r, el = document.getElementById(`sq-${sq}`);
-        el.innerHTML = state[sq] ? `<img src="${pieceImages[state[sq]]}" class="piece">` : "";
+      for (let i = 0; i < stepIndex; i++) {
+        const [from, to] = activeOpening.moves[i];
+        state[to] = state[from];
+        delete state[from];
+      }
+
+      updateBoardDisplay(state);
+
+      // Highlight selected menu item
+      const items = document.querySelectorAll(".move-item");
+      items.forEach((item, idx) => {
+        if (idx === stepIndex) {
+          item.classList.add("active");
+          item.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } else {
+          item.classList.remove("active");
+        }
+      });
+
+      // Update Teaching lesson box
+      const lessonBox = document.getElementById("lessonBox");
+      if (stepIndex === 0) {
+        lessonBox.innerText = "Starting Position. Click moves above to learn step-by-step!";
+      } else {
+        lessonBox.innerText = activeOpening.lessons[stepIndex - 1] || "Keep exploring moves!";
       }
     }
 
-    function renderBoard() {
-      const b = document.getElementById("board");
+    function updateBoardDisplay(state) {
       const files = ['a','b','c','d','e','f','g','h'];
-      for(let r=8; r>=1; r--) for(let f=0; f<8; f++) {
-        const s = document.createElement("div");
-        s.id = `sq-${files[f]+r}`;
-        s.className = `square ${(r+f)%2 ? 'light' : 'dark'}`;
-        b.appendChild(s);
+      for (let rank = 8; rank >= 1; rank--) {
+        for (let f = 0; f < 8; f++) {
+          const sq = files[f] + rank;
+          const sqEl = document.getElementById(`sq-${sq}`);
+          sqEl.innerHTML = "";
+          
+          if (state[sq]) {
+            const pieceImg = document.createElement("img");
+            pieceImg.src = pieceImages[state[sq]];
+            pieceImg.className = "piece";
+            sqEl.appendChild(pieceImg);
+          }
+        }
       }
     }
+
     window.onload = init;
   </script>
 </body>
 </html>
-
